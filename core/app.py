@@ -4,6 +4,7 @@ from starlette.responses import JSONResponse
 
 from common.exception.exception import ElasticsearchException
 from container.container import AppContainer
+from app.router.news import router as news_router
 
 
 def create_app():
@@ -29,6 +30,8 @@ def create_app():
     @app.on_event("shutdown")
     async def shutdown_event():
         container.es_client().close()
+
+    app.include_router(news_router, tags=["news"])
 
     return app
 

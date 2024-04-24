@@ -14,6 +14,9 @@ class Settings(BaseSettings):
     ES_USER: str
     ES_PASSWORD: str
 
+    # INDEX
+    NEWS_INDEX_NAME: str
+
     class Config:
         env_file = "config/.env"
         env_file_encoding = "utf-8"
