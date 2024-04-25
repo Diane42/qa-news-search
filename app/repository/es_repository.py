@@ -16,3 +16,8 @@ class ESRepository:
 
     async def bulk_insert(self, body: list[dict]):
         return self.es_client.bulk_insert(body)
+
+    def search_document(self, index_name: str, body: dict):
+        return self.es_client.search_document(index_name, body)
+
+

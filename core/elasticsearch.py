@@ -41,3 +41,10 @@ class ElasticSearchClient:
             error_detail = json.dumps(result)
             raise ElasticsearchException(code=500, detail=str(error_detail))
         return result
+
+    # TODO: size, scroll 적용 필요
+    def search_document(self, index_name: str, body: dict):
+        try:
+            return self.client.search(index=index_name, body=body)
+        except Exception as e:
+            raise ElasticsearchException(code=500, detail=str(e))

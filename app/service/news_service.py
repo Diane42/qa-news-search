@@ -3,6 +3,8 @@ import json
 
 from app.repository.news_repository import NewsRepository
 from app.schema import BasicResponse
+from app.schema.news_dto import NewsSearchRequest
+from common.enums.news_enum import SortBy
 from core.config import settings
 
 
@@ -38,4 +40,33 @@ class NewsService:
                                      csv_path=settings.NEWS_INDEX_CSV)
 
         return BasicResponse()
+
+    def get_news(self, request: NewsSearchRequest):
+        must_dicts = [{"match_all": {}}]
+
+        sort_criteria = [{"_score": {"order": "desc"}}]
+        if request.sort_by == SortBy.NEWEST:
+            sort_criteria.insert(0, {"dateline": {"order": "desc"}})
+        elif request.sort_by == SortBy.OLDEST:
+            sort_criteria.insert(0, {"dateline": {"order": "asc"}})
+
+        body = {
+            "query": {
+                "bool": {
+                    "must": must_dicts,
+                    "filter": []
+                }
+            },
+            "sort": sort_criteria
+        }
+
+        date_filter = request.date_range.calculate_date_range(request.start_date, request.end_date)
+        if date_filter:
+            body["query"]["bool"]["filter"].append({
+                "range": {
+                    "dateline": date_filter
+                }
+            })
+        response = self.news_repository.search_document(settings.NEWS_INDEX_NAME, body=body)
+        return [doc for doc in response['hits']['hits']]
 
