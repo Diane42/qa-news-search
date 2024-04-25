@@ -1,7 +1,6 @@
-from core.elasticsearch import ElasticSearchClient
+from app.repository.es_repository import ESRepository
 
 
-class NewsRepository:
-    def __init__(self, es_client: ElasticSearchClient):
-        self.es_client = es_client
+class NewsRepository(ESRepository):
+    pass
 

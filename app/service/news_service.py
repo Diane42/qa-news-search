@@ -1,7 +1,41 @@
+import csv
+import json
+
 from app.repository.news_repository import NewsRepository
+from app.schema import BasicResponse
+from core.config import settings
 
 
 class NewsService:
     def __init__(self, news_repository: NewsRepository):
         self.news_repository = news_repository
+
+    async def set_bulk_data(self, index_name: str, index_path: str, csv_path: str):
+        with open(index_path, 'r', encoding='utf-8') as index_data:
+            index_body = json.load(index_data)
+        await self.news_repository.create_index(index_name, index_body)
+
+        with open(csv_path, 'r', encoding='utf-8') as csv_data:
+            reader = csv.DictReader(csv_data)
+            docs = []
+            for row in reader:
+                docs.append({"index": {
+                    "_index": index_name,
+                    "_type": "_doc"
+                }})
+                docs.append(row)
+        await self.news_repository.bulk_insert(docs)
+
+    async def set_news_data(self):
+        if not self.news_repository.exists_index(settings.PROVIDER_INDEX_NAME):
+            await self.set_bulk_data(index_name=settings.PROVIDER_INDEX_NAME,
+                                     index_path=settings.PROVIDER_INDEX_JSON,
+                                     csv_path=settings.PROVIDER_INDEX_CSV)
+
+        if not self.news_repository.exists_index(settings.NEWS_INDEX_NAME):
+            await self.set_bulk_data(index_name=settings.NEWS_INDEX_NAME,
+                                     index_path=settings.NEWS_INDEX_JSON,
+                                     csv_path=settings.NEWS_INDEX_CSV)
+
+        return BasicResponse()
 

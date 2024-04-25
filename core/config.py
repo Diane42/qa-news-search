@@ -16,6 +16,13 @@ class Settings(BaseSettings):
 
     # INDEX
     NEWS_INDEX_NAME: str
+    PROVIDER_INDEX_NAME: str
+
+    # FILE PATH
+    NEWS_INDEX_JSON: str
+    NEWS_INDEX_CSV: str
+    PROVIDER_INDEX_JSON: str
+    PROVIDER_INDEX_CSV: str
 
     class Config:
         env_file = "config/.env"
