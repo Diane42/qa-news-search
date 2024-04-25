@@ -1,10 +1,7 @@
 from fastapi import FastAPI
-from starlette.requests import Request
-from starlette.responses import JSONResponse
-
-from common.exception.exception import ElasticsearchException
 from container.container import AppContainer
 from app.router.news import router as news_router
+from core.exception_handler import elasticsearch_exception_handler, pydantic_exception_handler
 
 
 def create_app():
@@ -12,16 +9,6 @@ def create_app():
     container = AppContainer()
     container.wire(packages=["app"])
     app.container = container
-
-    @app.exception_handler(ElasticsearchException)
-    async def elasticsearch_exception_handler(request: Request, exc: ElasticsearchException):
-        return JSONResponse(
-            status_code=exc.code,
-            content={
-                "response_code": exc.code,
-                "response_message": exc.detail
-            }
-        )
 
     @app.on_event("startup")
     async def startup_event():
@@ -32,6 +19,9 @@ def create_app():
         container.es_client().close()
 
     app.include_router(news_router, tags=["news"])
+
+    elasticsearch_exception_handler(app)
+    pydantic_exception_handler(app)
 
     return app
 
