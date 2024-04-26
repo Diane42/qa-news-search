@@ -27,7 +27,9 @@ class DateRange(StrEnum):
     CUSTOM = auto()
 
     def calculate_date_range(self, start_date=None, end_date=None):
-        now = datetime.now()
+        #TODO : 테스트용 시간 설정, 개발 완료 후 datetime.now()으로 변경 예정
+        now = datetime(2021, 5, 1, 12, 00, 00)
+
         if self == DateRange.ALL:
             return None
         elif self in [DateRange.LAST_1_HOUR, DateRange.LAST_2_HOUR, DateRange.LAST_3_HOUR,

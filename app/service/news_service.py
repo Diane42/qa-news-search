@@ -41,15 +41,18 @@ class NewsService:
 
         return BasicResponse()
 
-    def get_news(self, request: NewsSearchRequest):
-        must_dicts = [{"match_all": {}}]
+    def search_news(self, request: NewsSearchRequest):
+        must_dicts = [{"match": {"title": request.keyword}}]
+
+        if request.byline:
+            must_dicts.append({"match": {"byline": request.byline}})
 
         sort_criteria = [{"_score": {"order": "desc"}}]
         if request.sort_by == SortBy.NEWEST:
             sort_criteria.insert(0, {"dateline": {"order": "desc"}})
         elif request.sort_by == SortBy.OLDEST:
             sort_criteria.insert(0, {"dateline": {"order": "asc"}})
-
+        sort_criteria.append({"_id": {"order": "asc"}})
         body = {
             "query": {
                 "bool": {
@@ -67,6 +70,5 @@ class NewsService:
                     "dateline": date_filter
                 }
             })
-        response = self.news_repository.search_document(settings.NEWS_INDEX_NAME, body=body)
+        response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=100, body=body)
         return [doc for doc in response['hits']['hits']]
-

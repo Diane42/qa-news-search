@@ -7,10 +7,12 @@ from common.enums.news_enum import SortBy, DateRange
 
 
 class NewsSearchRequest(BaseModel):
+    keyword: str
     sort_by: SortBy
     date_range: DateRange
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    byline: Optional[str] = None
 
     @model_validator(mode="after")
     def validate(self):

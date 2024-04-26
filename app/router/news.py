@@ -17,9 +17,9 @@ async def set_news_data(
 
 
 @router.get("/news")
-async def get_news(
+async def search_news(
         request=Depends(get_news_params),
         news_service=Depends(get_news_service)
 ):
-    result = news_service.get_news(request)
+    result = news_service.search_news(request)
     return JSONResponse(content=jsonable_encoder(result), status_code=200)
