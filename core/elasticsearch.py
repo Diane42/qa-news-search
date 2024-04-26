@@ -1,5 +1,5 @@
 import json
-from typing import Union
+from typing import Optional
 from elasticsearch import Elasticsearch
 from common.exception.exception import ElasticsearchException
 from core.config import settings
@@ -8,7 +8,7 @@ from core.config import settings
 class ElasticSearchClient:
     def __init__(self):
         self.hosts = settings.ES_HOST
-        self.client: Union[Elasticsearch, None] = None
+        self.client: Optional[Elasticsearch] = None
 
     def connect(self):
         self.client = Elasticsearch(settings.ES_URL,
@@ -42,9 +42,12 @@ class ElasticSearchClient:
             raise ElasticsearchException(code=500, detail=str(error_detail))
         return result
 
-    # TODO: size, scroll 적용 필요
-    def search_document(self, index_name: str, body: dict):
+    # TODO: paging 적용 (search-after, pit)
+    def search(self, index_name: str, body: dict, size: int, scroll: Optional[str] = None):
         try:
-            return self.client.search(index=index_name, body=body)
+            return self.client.search(index=index_name, body=body, size=size, scroll=scroll)
         except Exception as e:
             raise ElasticsearchException(code=500, detail=str(e))
+
+    def scroll(self, scroll_id: str, scroll: str):
+        return self.client.scroll(scroll_id=scroll_id, scroll=scroll)
