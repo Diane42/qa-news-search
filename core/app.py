@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from container.container import AppContainer
 from app.router.news import router as news_router
+from app.router.provider import router as provider_router
 from core.exception_handler import elasticsearch_exception_handler, pydantic_exception_handler
 
 
@@ -19,6 +20,7 @@ def create_app():
         container.es_client().close()
 
     app.include_router(news_router, tags=["news"])
+    app.include_router(provider_router, tags=["provider"])
 
     elasticsearch_exception_handler(app)
     pydantic_exception_handler(app)
