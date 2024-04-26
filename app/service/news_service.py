@@ -32,12 +32,12 @@ class NewsService:
     async def set_news_data(self):
         if not self.news_repository.exists_index(settings.PROVIDER_INDEX_NAME):
             await self.set_bulk_data(index_name=settings.PROVIDER_INDEX_NAME,
-                                     index_path=settings.PROVIDER_INDEX_JSON,
+                                     index_path=settings.PROVIDER_INDEX_SETTING,
                                      csv_path=settings.PROVIDER_INDEX_CSV)
 
         if not self.news_repository.exists_index(settings.NEWS_INDEX_NAME):
             await self.set_bulk_data(index_name=settings.NEWS_INDEX_NAME,
-                                     index_path=settings.NEWS_INDEX_JSON,
+                                     index_path=settings.NEWS_INDEX_SETTING,
                                      csv_path=settings.NEWS_INDEX_CSV)
 
         return BasicResponse()

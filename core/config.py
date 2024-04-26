@@ -19,9 +19,9 @@ class Settings(BaseSettings):
     PROVIDER_INDEX_NAME: str
 
     # FILE PATH
-    NEWS_INDEX_JSON: str
+    NEWS_INDEX_SETTING: str
     NEWS_INDEX_CSV: str
-    PROVIDER_INDEX_JSON: str
+    PROVIDER_INDEX_SETTING: str
     PROVIDER_INDEX_CSV: str
 
     class Config:
