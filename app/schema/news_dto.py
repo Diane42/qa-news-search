@@ -12,6 +12,7 @@ class NewsSearchRequest(BaseModel):
     date_range: DateRange
     start_date: Optional[str] = None
     end_date: Optional[str] = None
+    provider: list[str] = []
     byline: Optional[str] = None
 
     @model_validator(mode="after")

@@ -13,6 +13,7 @@ def get_news_params(
         date_range: DateRange,
         start_date: Optional[str] = Query(None, description="YYYY-MM-DD"),
         end_date: Optional[str] = Query(None, description="YYYY-MM-DD"),
+        provider: list[str] = Query([]),
         byline: Optional[str] = Query(None)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
@@ -21,5 +22,6 @@ def get_news_params(
         date_range=date_range,
         start_date=start_date,
         end_date=end_date,
+        provider=provider,
         byline=byline
     )

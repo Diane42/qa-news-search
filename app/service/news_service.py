@@ -42,9 +42,15 @@ class NewsService:
 
         return BasicResponse()
 
+    # TODO: 검색 쿼리 성능, 효율 개선
     def search_news(self, request: NewsSearchRequest):
         must_dicts = [{"match": {"title": request.keyword}}]
+        should_dict = []
+        minimum_should_match = 0
 
+        if request.provider:
+            should_dict = [{"term": {"provider.keyword": name}} for name in request.provider]
+            minimum_should_match = 1
         if request.byline:
             must_dicts.append({"match": {"byline": request.byline}})
 
@@ -53,11 +59,13 @@ class NewsService:
             sort_criteria.insert(0, {"dateline": {"order": "desc"}})
         elif request.sort_by == SortBy.OLDEST:
             sort_criteria.insert(0, {"dateline": {"order": "asc"}})
-        sort_criteria.append({"_id": {"order": "asc"}})
+
         body = {
             "query": {
                 "bool": {
                     "must": must_dicts,
+                    "should": should_dict,
+                    "minimum_should_match": minimum_should_match,
                     "filter": []
                 }
             },
