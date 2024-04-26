@@ -21,11 +21,12 @@ class NewsService:
             reader = csv.DictReader(csv_data)
             docs = []
             for row in reader:
+                filtered_row = {key: value for key, value in row.items() if value.strip()}
                 docs.append({"index": {
                     "_index": index_name,
                     "_type": "_doc"
                 }})
-                docs.append(row)
+                docs.append(filtered_row)
         await self.news_repository.bulk_insert(docs)
 
     async def set_news_data(self):
