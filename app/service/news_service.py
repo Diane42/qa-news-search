@@ -19,45 +19,63 @@ class NewsService:
 
             with open(settings.NEWS_INDEX_DATA, 'r', encoding='utf-8') as index_data_file:
                 index_data = json.load(index_data_file)
-            success_list, fail_list = await self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME, index_data)
+            success_list, fail_list = await self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME,
+                                                                                       index_data)
         return NewsInsertResponse(success_list=success_list, fail_list=fail_list)
 
     # TODO: 검색 쿼리 성능, 효율 개선
     def search_news(self, request: NewsSearchRequest):
+        # 기본 키워드
         must_dicts = [{"match": {"title": request.keyword}}]
-        should_dict = []
-        minimum_should_match = 0
 
-        if request.provider:
-            should_dict = [{"term": {"provider.keyword": name}} for name in request.provider]
-            minimum_should_match = 1
+        # 기자명
         if request.byline:
             must_dicts.append({"match": {"byline": request.byline}})
 
+        # 언론사
+        provider_must = []
+        if request.provider_name:
+            provider_must.append({"match": {"provider.name": request.provider_name}})
+        if request.provider_section:
+            provider_must.append({"match": {"provider.section": request.provider_section}})
+        if request.provider_local:
+            provider_must.append({"match": {"provider.local": request.provider_local}})
+        if request.provider_abc:
+            provider_must.append({"match": {"provider.abc": request.provider_abc}})
+        if provider_must:
+            must_dicts.append({
+                "nested": {
+                    "path": "provider",
+                    "query": {
+                        "bool": {
+                            "must": provider_must
+                        }
+                    }
+                }
+            })
+
+        # 정렬
         sort_criteria = [{"_score": {"order": "desc"}}]
         if request.sort_by == SortBy.NEWEST:
             sort_criteria.insert(0, {"dateline": {"order": "desc"}})
         elif request.sort_by == SortBy.OLDEST:
             sort_criteria.insert(0, {"dateline": {"order": "asc"}})
 
+        # 기간
+        filter_list = []
+        date_filter = request.date_range.calculate_date_range(request.start_date, request.end_date)
+        if date_filter:
+            filter_list.append({"range": {"dateline": date_filter}})
+
         body = {
             "query": {
                 "bool": {
                     "must": must_dicts,
-                    "should": should_dict,
-                    "minimum_should_match": minimum_should_match,
-                    "filter": []
+                    "filter": filter_list
                 }
             },
             "sort": sort_criteria
         }
 
-        date_filter = request.date_range.calculate_date_range(request.start_date, request.end_date)
-        if date_filter:
-            body["query"]["bool"]["filter"].append({
-                "range": {
-                    "dateline": date_filter
-                }
-            })
         response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=100, body=body)
         return [doc for doc in response['hits']['hits']]
