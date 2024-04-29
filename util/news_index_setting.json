@@ -1,0 +1,89 @@
+{
+  "settings": {
+    "analysis": {
+      "tokenizer": {
+        "nori_tokenizer_mixed": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        }
+      },
+      "filter": {
+        "nori_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": [
+            "E",
+            "IC",
+            "J",
+            "MAG",
+            "MAJ"
+          ]
+        },
+        "nori_readingform": {
+          "type": "nori_readingform"
+        },
+        "lowercase": {
+          "type": "lowercase"
+        }
+      },
+      "analyzer": {
+        "korean_mixed": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_mixed",
+          "filter": [
+            "nori_readingform",
+            "nori_pos_filter"
+          ]
+        }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "analyzer": "korean_mixed"
+      },
+      "content": {
+        "type": "text",
+        "analyzer": "korean_mixed"
+      },
+      "provider": {
+        "type": "nested",
+        "properties": {
+          "name": {
+            "type": "keyword"
+          },
+          "section": {
+            "type": "keyword"
+          },
+          "local": {
+            "type": "keyword"
+          },
+          "abc": {
+            "type": "keyword"
+          }
+        }
+      },
+      "byline": {
+        "type": "text",
+        "analyzer": "korean_mixed"
+      },
+      "category": {
+        "type": "nested",
+        "properties": {
+          "first": {
+            "type": "keyword"
+          },
+          "second": {
+            "type": "keyword"
+          },
+          "third": {
+            "type": "keyword"
+          }
+        }
+      }
+    }
+  }
+}
+
+
