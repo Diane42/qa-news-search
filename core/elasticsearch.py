@@ -1,6 +1,8 @@
 import json
 from typing import Optional
 from elasticsearch import Elasticsearch, AsyncElasticsearch
+from elasticsearch.helpers import streaming_bulk
+
 from common.exception.exception import ElasticsearchException
 from core.config import settings
 
@@ -40,7 +42,37 @@ class ElasticSearchClient:
         if result.get('errors'):
             error_detail = json.dumps(result)
             raise ElasticsearchException(code=500, detail=str(error_detail))
+
         return result
+
+    def streaming_bulk_insert(self, index_name: str, data: list):
+        def gen_date(index_name, _sources):
+            for _source in _sources:
+                doc = {
+                    "_index": index_name,
+                    "_source": _source
+                }
+                if "_id" in _source:
+                    _id = _source.get("_id")
+                    doc['_id'] = _id
+                    del _source["_id"]
+
+                yield doc
+
+        success_list = []
+        fail_list = []
+        for ok, result in streaming_bulk(
+                self.client,
+                gen_date(index_name, data),
+                index=index_name
+        ):
+            action, result = result.popitem()
+            if not ok:
+                fail_list.append(result.get('_id'))
+            else:
+                success_list.append(result.get('_id'))
+
+        return success_list, fail_list
 
     # TODO: paging 적용 (search-after, pit)
     def search(self, index_name: str, body: dict, size: int, scroll: Optional[str] = None):

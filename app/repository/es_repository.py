@@ -25,3 +25,6 @@ class ESRepository:
     def scroll(self, scroll_id: str, scroll: str):
         return self.es_client.scroll(scroll_id, scroll)
 
+    def streaming_bulk_insert(self, index_name: str, data: list):
+        return self.es_client.streaming_bulk_insert(index_name, data)
+
