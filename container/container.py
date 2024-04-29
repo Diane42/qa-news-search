@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from app.repository.provider_repository import ProviderRepository
-from core.elasticsearch import ElasticSearchClient
+from core.elasticsearch import ElasticSearchClient, AsyncElasticSearchClient
 from app.repository.news_repository import NewsRepository
 
 from app.service.news_service import NewsService
@@ -11,6 +11,7 @@ from app.service.provider_service import ProviderService
 class AppContainer(containers.DeclarativeContainer):
     wiring_config = containers.WiringConfiguration(packages=["app"])
     es_client = providers.Singleton(ElasticSearchClient)
+    async_es_client = providers.Singleton(AsyncElasticSearchClient)
 
     NewsRepository = providers.Singleton(NewsRepository, es_client=es_client)
     ProviderRepository = providers.Singleton(ProviderRepository, es_client=es_client)

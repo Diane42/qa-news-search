@@ -1,6 +1,6 @@
 import json
 from typing import Optional
-from elasticsearch import Elasticsearch
+from elasticsearch import Elasticsearch, AsyncElasticsearch
 from common.exception.exception import ElasticsearchException
 from core.config import settings
 
@@ -11,10 +11,10 @@ class ElasticSearchClient:
         self.client: Optional[Elasticsearch] = None
 
     def connect(self):
-        self.client = Elasticsearch(settings.ES_URL,
+        self.client = Elasticsearch(settings.ES_HOST,
                                     verify_certs=False,
                                     basic_auth=(settings.ES_USER, settings.ES_PASSWORD)
-                                    , timeout=600)
+                                    , timeout=60)
 
         result = self.client.ping()
 
@@ -51,3 +51,21 @@ class ElasticSearchClient:
 
     def scroll(self, scroll_id: str, scroll: str):
         return self.client.scroll(scroll_id=scroll_id, scroll=scroll)
+
+
+class AsyncElasticSearchClient:
+    def __init__(self):
+        self.hosts = settings.ES_HOST
+        self.client: Optional[AsyncElasticsearch] = None
+
+    async def connect(self):
+        self.client = AsyncElasticsearch(settings.ES_HOST,
+                                         basic_auth=(settings.ES_USER, settings.ES_PASSWORD)
+                                         , timeout=60)
+
+        result = await self.client.ping()
+
+    async def close(self):
+        if self.client:
+            await self.client.close()
+            self.client = None

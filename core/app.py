@@ -14,10 +14,12 @@ def create_app():
     @app.on_event("startup")
     async def startup_event():
         container.es_client().connect()
+        await container.async_es_client().connect()
 
     @app.on_event("shutdown")
     async def shutdown_event():
         container.es_client().close()
+        await container.async_es_client().connect()
 
     app.include_router(news_router, tags=["news"])
     app.include_router(provider_router, tags=["provider"])
