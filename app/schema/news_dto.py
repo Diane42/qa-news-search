@@ -3,7 +3,13 @@ from typing import Optional
 
 from pydantic import BaseModel, model_validator
 
+from app.schema import BasicResponse
 from common.enums.news_enum import SortBy, DateRange
+
+
+class NewsInsertResponse(BasicResponse):
+    success_list: list[str]
+    fail_list: list[str]
 
 
 class NewsSearchRequest(BaseModel):
@@ -28,3 +34,4 @@ class NewsSearchRequest(BaseModel):
                     setattr(self, field, datetime.strptime(date_value, "%Y-%m-%d"))
 
         return self
+

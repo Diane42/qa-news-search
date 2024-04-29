@@ -12,7 +12,7 @@ router = APIRouter()
 async def set_news_data(
         news_service=Depends(get_news_service)
 ):
-    result = await news_service.set_news_data()
+    result = await news_service.set_index_data()
     return JSONResponse(content=jsonable_encoder(result), status_code=200)
 
 

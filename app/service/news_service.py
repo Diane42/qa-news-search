@@ -1,9 +1,7 @@
-import csv
 import json
 
 from app.repository.news_repository import NewsRepository
-from app.schema import BasicResponse
-from app.schema.news_dto import NewsSearchRequest
+from app.schema.news_dto import NewsSearchRequest, NewsInsertResponse
 from common.enums.news_enum import SortBy
 from core.config import settings
 
@@ -12,35 +10,17 @@ class NewsService:
     def __init__(self, news_repository: NewsRepository):
         self.news_repository = news_repository
 
-    async def set_bulk_data(self, index_name: str, index_path: str, csv_path: str):
-        with open(index_path, 'r', encoding='utf-8') as index_data:
-            index_body = json.load(index_data)
-        await self.news_repository.create_index(index_name, index_body)
-
-        with open(csv_path, 'r', encoding='utf-8') as csv_data:
-            reader = csv.DictReader(csv_data)
-            docs = []
-            for row in reader:
-                filtered_row = {key: value for key, value in row.items() if value.strip()}
-                docs.append({"index": {
-                    "_index": index_name,
-                    "_type": "_doc"
-                }})
-                docs.append(filtered_row)
-        await self.news_repository.bulk_insert(docs)
-
-    async def set_news_data(self):
-        if not self.news_repository.exists_index(settings.PROVIDER_INDEX_NAME):
-            await self.set_bulk_data(index_name=settings.PROVIDER_INDEX_NAME,
-                                     index_path=settings.PROVIDER_INDEX_SETTING,
-                                     csv_path=settings.PROVIDER_INDEX_CSV)
-
+    async def set_index_data(self):
+        success_list, fail_list = [], []
         if not self.news_repository.exists_index(settings.NEWS_INDEX_NAME):
-            await self.set_bulk_data(index_name=settings.NEWS_INDEX_NAME,
-                                     index_path=settings.NEWS_INDEX_SETTING,
-                                     csv_path=settings.NEWS_INDEX_CSV)
+            with open(settings.NEWS_INDEX_SETTING, 'r', encoding='utf-8') as index_setting_file:
+                index_setting = json.load(index_setting_file)
+            await self.news_repository.create_index(settings.NEWS_INDEX_NAME, index_setting)
 
-        return BasicResponse()
+            with open(settings.NEWS_INDEX_DATA, 'r', encoding='utf-8') as index_data_file:
+                index_data = json.load(index_data_file)
+            success_list, fail_list = await self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME, index_data)
+        return NewsInsertResponse(success_list=success_list, fail_list=fail_list)
 
     # TODO: 검색 쿼리 성능, 효율 개선
     def search_news(self, request: NewsSearchRequest):
