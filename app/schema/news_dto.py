@@ -7,9 +7,15 @@ from app.schema import BasicResponse
 from common.enums.news_enum import SortBy, DateRange
 
 
-class NewsInsertResponse(BasicResponse):
-    success_list: list[str]
-    fail_list: list[str]
+class NewsDTO(BaseModel):
+    score: float
+    id: int
+    title: str
+    content: str
+    provider: str
+    byline: Optional[str]
+    category: list[dict]
+    dateline: str
 
 
 class NewsSearchRequest(BaseModel):
@@ -23,6 +29,9 @@ class NewsSearchRequest(BaseModel):
     provider_local: Optional[str] = None
     provider_abc: Optional[str] = None
     byline: Optional[str] = None
+    category_1: Optional[str] = None
+    category_2: Optional[str] = None
+    category_3: Optional[str] = None
 
     @model_validator(mode="after")
     def validate(self):
@@ -35,6 +44,34 @@ class NewsSearchRequest(BaseModel):
                 for field in ["start_date", "end_date"]:
                     date_value = getattr(self, field)
                     setattr(self, field, datetime.strptime(date_value, "%Y-%m-%d"))
+        else:
+            if self.start_date and self.end_date:
+                self.date_range = DateRange.CUSTOM
 
         return self
 
+
+class NewsInsertResponse(BasicResponse):
+    success_list: list[str]
+    fail_list: list[str]
+
+
+class NewsSearchResponse(BasicResponse):
+    return_cnt: int
+    news_list: list[NewsDTO]
+
+    @staticmethod
+    def to_response(search_results: list):
+        return NewsSearchResponse(return_cnt=len(search_results),
+                                  news_list=(NewsDTO
+                                             (score=result["_score"],
+                                              id=result["_source"]["id"],
+                                              title=result["_source"]["title"],
+                                              content=result["_source"]["content"][:100] + "...",
+                                              provider=result["_source"]["provider"]["name"],
+                                              byline=result["_source"]["byline"] if result["_source"]["byline"] else None,
+                                              category=result["_source"]["category"],
+                                              dateline=result["_source"]["dateline"]
+                                              ) for result in search_results
+                                             )
+                                  )

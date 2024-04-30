@@ -17,7 +17,10 @@ def get_news_params(
         provider_section: Optional[str] = Query(None),
         provider_local: Optional[str] = Query(None),
         provider_abc: Optional[str] = Query(None),
-        byline: Optional[str] = Query(None)
+        byline: Optional[str] = Query(None),
+        category_1: Optional[str] = Query(None),
+        category_2: Optional[str] = Query(None),
+        category_3: Optional[str] = Query(None)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
         keyword=keyword,
@@ -29,5 +32,8 @@ def get_news_params(
         provider_section=provider_section,
         provider_local=provider_local,
         provider_abc=provider_abc,
-        byline=byline
+        byline=byline,
+        category_1=category_1,
+        category_2=category_2,
+        category_3=category_3
     )

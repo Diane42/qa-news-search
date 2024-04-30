@@ -1,7 +1,7 @@
 import json
 
 from app.repository.news_repository import NewsRepository
-from app.schema.news_dto import NewsSearchRequest, NewsInsertResponse
+from app.schema.news_dto import NewsSearchRequest, NewsInsertResponse, NewsSearchResponse, NewsDTO
 from common.enums.news_enum import SortBy
 from core.config import settings
 
@@ -28,10 +28,6 @@ class NewsService:
         # 기본 키워드
         must_dicts = [{"match": {"title": request.keyword}}]
 
-        # 기자명
-        if request.byline:
-            must_dicts.append({"match": {"byline": request.byline}})
-
         # 언론사
         provider_must = []
         if request.provider_name:
@@ -53,6 +49,30 @@ class NewsService:
                     }
                 }
             })
+
+        # 카테고리
+        category_must = []
+        if request.category_1:
+            category_must.append({"match": {"category.first": request.category_1}})
+        if request.category_2:
+            category_must.append({"match": {"category.second": request.category_2}})
+        if request.category_3:
+            category_must.append({"match": {"category.third": request.category_3}})
+        if category_must:
+            must_dicts.append({
+                "nested": {
+                    "path": "category",
+                    "query": {
+                        "bool": {
+                            "must": category_must
+                        }
+                    }
+                }
+            })
+
+        # 기자명
+        if request.byline:
+            must_dicts.append({"match": {"byline": request.byline}})
 
         # 정렬
         sort_criteria = [{"_score": {"order": "desc"}}]
@@ -76,6 +96,8 @@ class NewsService:
             },
             "sort": sort_criteria
         }
-
+ 
         response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=100, body=body)
-        return [doc for doc in response['hits']['hits']]
+        result = [doc for doc in response['hits']['hits']]
+        return NewsSearchResponse.to_response(result)
+
