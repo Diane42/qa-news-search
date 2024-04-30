@@ -5,6 +5,7 @@ from pydantic import BaseModel, model_validator
 
 from app.schema import BasicResponse
 from common.enums.news_enum import SortBy, DateRange
+from common.enums.provider_enum import ProviderGroupType
 
 
 class NewsDTO(BaseModel):
@@ -51,9 +52,9 @@ class NewsSearchRequest(BaseModel):
         return self
 
 
-class NewsInsertResponse(BasicResponse):
-    success_list: list[str]
-    fail_list: list[str]
+class InsertResponse(BasicResponse):
+    success_cnt: int
+    fail_cnt: int
 
 
 class NewsSearchResponse(BasicResponse):
@@ -69,9 +70,35 @@ class NewsSearchResponse(BasicResponse):
                                               title=result["_source"]["title"],
                                               content=result["_source"]["content"][:100] + "...",
                                               provider=result["_source"]["provider"]["name"],
-                                              byline=result["_source"]["byline"] if result["_source"]["byline"] else None,
+                                              byline=result["_source"]["byline"] if result["_source"][
+                                                  "byline"] else None,
                                               category=result["_source"]["category"],
                                               dateline=result["_source"]["dateline"]
                                               ) for result in search_results
                                              )
                                   )
+
+
+class ProviderDTO(BaseModel):
+    provider_type: str
+    provider_cnt: int
+    provider_list: list[str]
+
+
+class ProviderListResponse(BasicResponse):
+    group_type: ProviderGroupType
+    group_cnt: int
+    group_list: list[ProviderDTO]
+
+    @staticmethod
+    def to_response(provider_type: ProviderGroupType, get_results: list):
+        return ProviderListResponse(group_type=provider_type,
+                                    group_cnt=len(get_results),
+                                    group_list=(ProviderDTO(
+                                    provider_type=result["key"],
+                                    provider_cnt=len(result["names_in_section"]["buckets"]),
+                                    provider_list=[provider["key"] for provider in
+                                                   result["names_in_section"]["buckets"]]
+                                ) for result in get_results
+                                )
+                                    )

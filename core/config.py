@@ -15,10 +15,13 @@ class Settings(BaseSettings):
 
     # INDEX
     NEWS_INDEX_NAME: str
+    PROVIDER_INDEX_NAME: str
 
     # FILE PATH
     NEWS_INDEX_SETTING: str
     NEWS_INDEX_DATA: str
+    PROVIDER_INDEX_SETTING: str
+    PROVIDER_INDEX_DATA: str
 
     class Config:
         env_file = "config/.env"

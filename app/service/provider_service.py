@@ -1,7 +1,9 @@
-from typing import Optional
+import csv
+import json
 
 from app.repository.provider_repository import ProviderRepository
-from common.enums.provider_enum import ProviderType
+from app.schema.dto import InsertResponse, ProviderListResponse
+from common.enums.provider_enum import ProviderGroupType
 from core.config import settings
 
 
@@ -9,46 +11,58 @@ class ProviderService:
     def __init__(self, provider_repository: ProviderRepository):
         self.provider_repository = provider_repository
 
-    def get_provider(self, provider_type: ProviderType, type_name: Optional[str]):
-        keyword = provider_type.__str__().lower() + ".keyword"
-        if type_name:
-            return self.get_provider_name_list_by_type(keyword, type_name)
-        else:
-            return self.get_provider_type_list(keyword)
+    async def set_provider_data(self):
+        success_list, fail_list = [], []
+        # 언론사 인덱스
+        if not self.provider_repository.exists_index(settings.PROVIDER_INDEX_NAME):
+            with open(settings.PROVIDER_INDEX_SETTING, 'r', encoding='utf-8') as index_setting_file:
+                index_setting = json.load(index_setting_file)
+            await self.provider_repository.create_index(settings.PROVIDER_INDEX_NAME, index_setting)
 
-    def get_provider_type_list(self, keyword: str):
+            with open(settings.PROVIDER_INDEX_DATA, 'r', encoding='utf-8') as index_data_file:
+                reader = csv.DictReader(index_data_file)
+                index_data = [row for row in reader]
+            success_list, fail_list = self.provider_repository.streaming_bulk_insert(settings.PROVIDER_INDEX_NAME,
+                                                                                     index_data)
+        return InsertResponse(success_cnt=len(success_list), fail_cnt=len(fail_list))
+
+    def get_provider_list(self, provider_type: ProviderGroupType):
+        field_keyword = provider_type.__str__().lower() + ".keyword"
         response = self.provider_repository.search(index_name=settings.PROVIDER_INDEX_NAME,
                                                    body={
+                                                       "query": {
+                                                           "bool": {
+                                                               "must_not": {
+                                                                   "terms": {
+                                                                       field_keyword: [""]
+                                                                   }
+                                                               }
+                                                           }
+                                                       },
                                                        "aggs": {
-                                                           "by_type": {
+                                                           "section_groups": {
                                                                "terms": {
-                                                                   "field": keyword,
-                                                                   "size": 100,
+                                                                   "field": field_keyword,
+                                                                   "size": 1000,
                                                                    "order": {
                                                                        "_key": "asc"
+                                                                   }
+                                                               },
+                                                               "aggs": {
+                                                                   "names_in_section": {
+                                                                       "terms": {
+                                                                           "field": "name.keyword",
+                                                                           "size": 1000,
+                                                                           "order": {
+                                                                               "_key": "asc"
+                                                                           }
+                                                                       }
                                                                    }
                                                                }
                                                            }
                                                        }
                                                    },
-                                                   size=0)
-        return [bucket["key"] for bucket in response["aggregations"]["by_type"]["buckets"]]
-
-    def get_provider_name_list_by_type(self, keyword: str, type_name: str):
-        response = self.provider_repository.search(index_name=settings.PROVIDER_INDEX_NAME,
-                                                   body={
-                                                       "query": {
-                                                           "term": {
-                                                               keyword: type_name
-                                                           }
-                                                       },
-                                                       "sort": [
-                                                           {
-                                                               "name.keyword": {
-                                                                   "order": "asc"
-                                                               }
-                                                           }
-                                                       ]
-                                                   },
-                                                   size=500)
-        return [doc["_source"]["name"] for doc in response["hits"]["hits"]]
+                                                   size=0
+                                                   )
+        result = response["aggregations"]["section_groups"]["buckets"]
+        return ProviderListResponse.to_response(provider_type, result)
