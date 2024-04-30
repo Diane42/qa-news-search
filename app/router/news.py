@@ -8,11 +8,11 @@ from app.router.parameters.news_param import get_news_params
 router = APIRouter()
 
 
-@router.get("/set-news-data")
+@router.get("/set-news")
 async def set_news_data(
         news_service=Depends(get_news_service)
 ):
-    result = await news_service.set_index_data()
+    result = await news_service.set_news_data()
     return JSONResponse(content=jsonable_encoder(result), status_code=200)
 
 

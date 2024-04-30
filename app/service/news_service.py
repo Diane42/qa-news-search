@@ -1,7 +1,7 @@
 import json
 
 from app.repository.news_repository import NewsRepository
-from app.schema.news_dto import NewsSearchRequest, NewsInsertResponse, NewsSearchResponse, NewsDTO
+from app.schema.dto import NewsSearchRequest, InsertResponse, NewsSearchResponse
 from common.enums.news_enum import SortBy
 from core.config import settings
 
@@ -10,7 +10,7 @@ class NewsService:
     def __init__(self, news_repository: NewsRepository):
         self.news_repository = news_repository
 
-    async def set_index_data(self):
+    async def set_news_data(self):
         success_list, fail_list = [], []
         if not self.news_repository.exists_index(settings.NEWS_INDEX_NAME):
             with open(settings.NEWS_INDEX_SETTING, 'r', encoding='utf-8') as index_setting_file:
@@ -19,9 +19,8 @@ class NewsService:
 
             with open(settings.NEWS_INDEX_DATA, 'r', encoding='utf-8') as index_data_file:
                 index_data = json.load(index_data_file)
-            success_list, fail_list = await self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME,
-                                                                                       index_data)
-        return NewsInsertResponse(success_list=success_list, fail_list=fail_list)
+            success_list, fail_list = self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME, index_data)
+        return InsertResponse(success_cnt=len(success_list), fail_cnt=len(fail_list))
 
     # TODO: 검색 쿼리 성능, 효율 개선
     def search_news(self, request: NewsSearchRequest):

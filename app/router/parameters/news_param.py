@@ -4,7 +4,7 @@ from typing import Optional
 from fastapi import Query
 
 from common.enums.news_enum import SortBy, DateRange
-from app.schema.news_dto import NewsSearchRequest
+from app.schema.dto import NewsSearchRequest
 
 
 def get_news_params(
