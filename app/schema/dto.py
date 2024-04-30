@@ -15,7 +15,7 @@ class NewsDTO(BaseModel):
     content: str
     provider: str
     byline: Optional[str]
-    category: list[dict]
+    category: list[str]
     dateline: str
 
 
@@ -67,12 +67,15 @@ class NewsSearchResponse(BasicResponse):
                                   news_list=(NewsDTO
                                              (score=result["_score"],
                                               id=result["_source"]["id"],
-                                              title=result["_source"]["title"],
-                                              content=result["_source"]["content"][:100] + "...",
+                                              title=result["highlight"]['title'][0] if 'title' in result["highlight"] else result["_source"]["title"],
+                                              content=result["highlight"]['content'][0] if 'content' in result["highlight"] else result["_source"]["content"],
                                               provider=result["_source"]["provider"]["name"],
                                               byline=result["_source"]["byline"] if result["_source"][
                                                   "byline"] else None,
-                                              category=result["_source"]["category"],
+                                              category=[dic["first"]+">"+dic["second"]+">"+dic["third"]
+                                                        if "third" in dic
+                                                        else dic["first"]+">"+dic["second"]
+                                                        for dic in result["_source"]["category"]],
                                               dateline=result["_source"]["dateline"]
                                               ) for result in search_results
                                              )
@@ -95,10 +98,12 @@ class ProviderListResponse(BasicResponse):
         return ProviderListResponse(group_type=provider_type,
                                     group_cnt=len(get_results),
                                     group_list=(ProviderDTO(
-                                    provider_type=result["key"],
-                                    provider_cnt=len(result["names_in_section"]["buckets"]),
-                                    provider_list=[provider["key"] for provider in
-                                                   result["names_in_section"]["buckets"]]
-                                ) for result in get_results
-                                )
+                                        provider_type=result["key"],
+                                        provider_cnt=len(result["provider_names"]["buckets"]),
+                                        provider_list=[provider["key"] for provider in
+                                                       result["provider_names"]["buckets"]]
+                                    ) for result in get_results
                                     )
+                                    )
+
+

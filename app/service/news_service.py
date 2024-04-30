@@ -25,7 +25,12 @@ class NewsService:
     # TODO: 검색 쿼리 성능, 효율 개선
     def search_news(self, request: NewsSearchRequest):
         # 기본 키워드
-        must_dicts = [{"match": {"title": request.keyword}}]
+        must_dicts = [{"multi_match": {
+                "query": request.keyword,
+                "fields": ["title", "content"],
+                "type": "best_fields"
+            }
+        }]
 
         # 언론사
         provider_must = []
@@ -93,9 +98,17 @@ class NewsService:
                     "filter": filter_list
                 }
             },
-            "sort": sort_criteria
+            "sort": sort_criteria,
+            "highlight": {
+                "fields": {
+                    "title": {},
+                    "content": {}
+                },
+                "pre_tags": ["<em>"],
+                "post_tags": ["</em>"]
+            }
         }
- 
+
         response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=100, body=body)
         result = [doc for doc in response['hits']['hits']]
         return NewsSearchResponse.to_response(result)
