@@ -104,8 +104,8 @@ class NewsService:
                     "title": {},
                     "content": {}
                 },
-                "pre_tags": ["<em>"],
-                "post_tags": ["</em>"]
+                "pre_tags": ["<mark>"],
+                "post_tags": ["</mark>"]
             }
         }
 
