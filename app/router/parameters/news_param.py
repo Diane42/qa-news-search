@@ -20,7 +20,8 @@ def get_news_params(
         byline: Optional[str] = Query(None),
         category_1: Optional[str] = Query(None),
         category_2: Optional[str] = Query(None),
-        category_3: Optional[str] = Query(None)
+        category_3: Optional[str] = Query(None),
+        search_after: Optional[list] = Query(None)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
         keyword=keyword,
@@ -35,5 +36,6 @@ def get_news_params(
         byline=byline,
         category_1=category_1,
         category_2=category_2,
-        category_3=category_3
+        category_3=category_3,
+        search_after=search_after
     )

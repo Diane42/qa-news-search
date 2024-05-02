@@ -1,4 +1,5 @@
 import json
+from datetime import datetime
 
 from app.repository.news_repository import NewsRepository
 from app.schema.dto import NewsSearchRequest, InsertResponse, NewsSearchResponse
@@ -84,6 +85,7 @@ class NewsService:
             sort_criteria.insert(0, {"dateline": {"order": "desc"}})
         elif request.sort_by == SortBy.OLDEST:
             sort_criteria.insert(0, {"dateline": {"order": "asc"}})
+        sort_criteria.append({"id": {"order": "asc"}})
 
         # 기간
         filter_list = []
@@ -97,7 +99,7 @@ class NewsService:
                     "must": must_dicts,
                     "filter": filter_list
                 }
-            },
+            }, 
             "sort": sort_criteria,
             "highlight": {
                 "fields": {
@@ -109,7 +111,11 @@ class NewsService:
             }
         }
 
-        response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=100, body=body)
+        if request.search_after:
+            body["search_after"] = request.search_after
+
+        response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=10, body=body)
         result = [doc for doc in response['hits']['hits']]
+
         return NewsSearchResponse.to_response(result)
 

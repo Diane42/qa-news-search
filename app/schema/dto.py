@@ -17,6 +17,7 @@ class NewsDTO(BaseModel):
     byline: Optional[str]
     category: list[str]
     dateline: str
+    search_after: list
 
 
 class NewsSearchRequest(BaseModel):
@@ -33,9 +34,25 @@ class NewsSearchRequest(BaseModel):
     category_1: Optional[str] = None
     category_2: Optional[str] = None
     category_3: Optional[str] = None
+    search_after: Optional[list] = None
 
     @model_validator(mode="after")
     def validate(self):
+        if self.search_after:
+            search_after = []
+            for val in self.search_after[0].split(","):
+                if val:
+                    val = val.strip()
+                    if '.' in val:
+                        val = float(val)
+                    elif "\"" in val or "'" in val:
+                        val = val.replace("\"", "").replace("'", "")
+                    else:
+                        val = int(val)
+                    search_after.append(val)
+            self.search_after = search_after
+        # else:
+        #     self.search_after = []
         if self.date_range == DateRange.CUSTOM:
             if self.start_date is None or self.end_date is None:
                 raise ValueError('When date range is custom, there must be a start date and an end date.')
@@ -76,7 +93,8 @@ class NewsSearchResponse(BasicResponse):
                                                         if "third" in dic
                                                         else dic["first"]+">"+dic["second"]
                                                         for dic in result["_source"]["category"]],
-                                              dateline=result["_source"]["dateline"]
+                                              dateline=result["_source"]["dateline"],
+                                              search_after=result["sort"],
                                               ) for result in search_results
                                              )
                                   )
@@ -105,5 +123,6 @@ class ProviderListResponse(BasicResponse):
                                     ) for result in get_results
                                     )
                                     )
+
 
 
