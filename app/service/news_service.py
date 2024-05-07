@@ -114,7 +114,10 @@ class NewsService:
         if request.search_after:
             body["search_after"] = request.search_after
 
-        response = self.news_repository.search(settings.NEWS_INDEX_NAME, size=10, body=body)
+        if request.pit_id:
+            body["pit"] = {"id": request.pit_id, "keep_alive": "1m"}
+
+        response = self.news_repository.search(index_name=settings.NEWS_INDEX_NAME, body=body, size=10)
         result = [doc for doc in response['hits']['hits']]
 
         return NewsSearchResponse.to_response(result)

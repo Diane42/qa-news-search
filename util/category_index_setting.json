@@ -39,7 +39,7 @@
   },
   "mappings": {
     "properties": {
-      "name": {
+      "first": {
         "type": "text",
         "analyzer": "korean_mixed",
         "fields": {
@@ -49,7 +49,7 @@
           }
         }
       },
-      "section": {
+      "second": {
         "type": "text",
         "analyzer": "korean_mixed",
         "fields": {
@@ -59,17 +59,7 @@
           }
         }
       },
-      "abc": {
-        "type": "text",
-        "analyzer": "korean_mixed",
-        "fields": {
-          "keyword": {
-            "type": "keyword",
-            "ignore_above": 256
-          }
-        }
-      },
-      "local": {
+      "third": {
         "type": "text",
         "analyzer": "korean_mixed",
         "fields": {

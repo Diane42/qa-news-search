@@ -3,7 +3,7 @@ from fastapi.encoders import jsonable_encoder
 from starlette.responses import JSONResponse
 
 from core.dependencies import get_news_service
-from app.router.parameters.news_param import get_news_params
+from app.router.parameters.param import get_news_params
 
 router = APIRouter()
 

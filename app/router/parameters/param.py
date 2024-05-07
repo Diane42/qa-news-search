@@ -1,10 +1,9 @@
-from datetime import datetime
 from typing import Optional
 
 from fastapi import Query
 
-from common.enums.news_enum import SortBy, DateRange
 from app.schema.dto import NewsSearchRequest
+from common.enums.news_enum import SortBy, DateRange
 
 
 def get_news_params(
@@ -21,7 +20,8 @@ def get_news_params(
         category_1: Optional[str] = Query(None),
         category_2: Optional[str] = Query(None),
         category_3: Optional[str] = Query(None),
-        search_after: Optional[list] = Query(None)
+        search_after: Optional[list] = Query(None),
+        pit_id: Optional[str] = Query(None)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
         keyword=keyword,
@@ -37,5 +37,7 @@ def get_news_params(
         category_1=category_1,
         category_2=category_2,
         category_3=category_3,
-        search_after=search_after
+        search_after=search_after,
+        pit_id=pit_id
     )
+

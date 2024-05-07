@@ -5,8 +5,6 @@ class Settings(BaseSettings):
     # API Setting
     API_HOST: str
     API_PORT: int
-    API_WORKERS: int
-    API_THREADS: int
 
     # ELASTICSEARCH
     ES_HOST: str
@@ -16,12 +14,15 @@ class Settings(BaseSettings):
     # INDEX
     NEWS_INDEX_NAME: str
     PROVIDER_INDEX_NAME: str
+    CATEGORY_INDEX_NAME: str
 
     # FILE PATH
     NEWS_INDEX_SETTING: str
     NEWS_INDEX_DATA: str
     PROVIDER_INDEX_SETTING: str
     PROVIDER_INDEX_DATA: str
+    CATEGORY_INDEX_SETTING: str
+    CATEGORY_INDEX_DATA: str
 
     class Config:
         env_file = "config/.env"

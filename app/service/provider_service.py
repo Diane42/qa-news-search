@@ -40,7 +40,7 @@ class ProviderService:
                                                            }
                                                        },
                                                        "aggs": {
-                                                           "section_groups": {
+                                                           "provider_groups": {
                                                                "terms": {
                                                                    "field": field_keyword,
                                                                    "size": 1000,
@@ -49,7 +49,7 @@ class ProviderService:
                                                                    }
                                                                },
                                                                "aggs": {
-                                                                   "names_in_section": {
+                                                                   "provider_names": {
                                                                        "terms": {
                                                                            "field": "name.keyword",
                                                                            "size": 1000,
@@ -64,5 +64,5 @@ class ProviderService:
                                                    },
                                                    size=0
                                                    )
-        result = response["aggregations"]["section_groups"]["buckets"]
+        result = response["aggregations"]["provider_groups"]["buckets"]
         return ProviderListResponse.to_response(provider_type, result)

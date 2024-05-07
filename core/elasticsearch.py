@@ -19,6 +19,7 @@ class ElasticSearchClient:
                                     , timeout=60)
 
         result = self.client.ping()
+        #print("ElasticSearchClient", result)
 
     def close(self):
         if self.client:
@@ -74,10 +75,12 @@ class ElasticSearchClient:
 
         return success_list, fail_list
 
-    # TODO: paging 적용 (search-after, pit)
-    def search(self, index_name: str, body: dict, size: int, scroll: Optional[str] = None):
+    def search(self, index_name: str, body: dict, size: int):
         try:
-            return self.client.search(index=index_name, body=body, size=size, scroll=scroll)
+            if 'pit' in body:
+                return self.client.search(body=body, size=size)
+            else:
+                return self.client.search(index=index_name, body=body, size=size)
         except Exception as e:
             raise ElasticsearchException(code=500, detail=str(e))
 
@@ -96,6 +99,7 @@ class AsyncElasticSearchClient:
                                          , timeout=60)
 
         result = await self.client.ping()
+        #print("AsyncElasticSearchClient", result)
 
     async def close(self):
         if self.client:

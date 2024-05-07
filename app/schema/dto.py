@@ -4,6 +4,7 @@ from typing import Optional
 from pydantic import BaseModel, model_validator
 
 from app.schema import BasicResponse
+from common.category_enum import CategoryType
 from common.enums.news_enum import SortBy, DateRange
 from common.enums.provider_enum import ProviderGroupType
 
@@ -15,7 +16,7 @@ class NewsDTO(BaseModel):
     content: str
     provider: str
     byline: Optional[str]
-    category: list[str]
+    category: list
     dateline: str
     search_after: list
 
@@ -35,6 +36,7 @@ class NewsSearchRequest(BaseModel):
     category_2: Optional[str] = None
     category_3: Optional[str] = None
     search_after: Optional[list] = None
+    pit_id: Optional[str] = None
 
     @model_validator(mode="after")
     def validate(self):
@@ -84,15 +86,14 @@ class NewsSearchResponse(BasicResponse):
                                   news_list=(NewsDTO
                                              (score=result["_score"],
                                               id=result["_source"]["id"],
-                                              title=result["highlight"]['title'][0] if 'title' in result["highlight"] else result["_source"]["title"],
-                                              content=result["highlight"]['content'][0] if 'content' in result["highlight"] else result["_source"]["content"],
+                                              title=result["highlight"]['title'][0] if 'title' in result[
+                                                  "highlight"] else result["_source"]["title"],
+                                              content=result["highlight"]['content'][0] if 'content' in result[
+                                                  "highlight"] else result["_source"]["content"],
                                               provider=result["_source"]["provider"]["name"],
                                               byline=result["_source"]["byline"] if result["_source"][
                                                   "byline"] else None,
-                                              category=[dic["first"]+">"+dic["second"]+">"+dic["third"]
-                                                        if "third" in dic
-                                                        else dic["first"]+">"+dic["second"]
-                                                        for dic in result["_source"]["category"]],
+                                              category=result["_source"]["category"],
                                               dateline=result["_source"]["dateline"],
                                               search_after=result["sort"],
                                               ) for result in search_results
@@ -124,5 +125,31 @@ class ProviderListResponse(BasicResponse):
                                     )
                                     )
 
+
+class CategoryDto(BaseModel):
+    main: Optional[str]
+    sub: list[str]
+
+
+class MainCategoryResponse(BasicResponse):
+    category_list: list[CategoryDto]
+
+    @staticmethod
+    def to_main_category(get_results: list, category_type: CategoryType):
+        if category_type == CategoryType.ALL:
+            return MainCategoryResponse(
+                category_list=[CategoryDto(
+                    main=None,
+                    sub=[result["key"] for result in get_results]
+                )]
+            )
+        else:
+            return MainCategoryResponse(
+                category_list=(CategoryDto(
+                    main=result["key"],
+                    sub=[doc["key"] for doc in result["sub_categories"]["buckets"]]
+                    ) for result in get_results
+                )
+            )
 
 
