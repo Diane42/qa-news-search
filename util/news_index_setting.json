@@ -1,7 +1,19 @@
 {
   "settings": {
+    "index": {
+      "max_ngram_diff": 4
+    },
     "analysis": {
       "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": "2",
+          "max_gram": "6"
+        },
+        "nori_tokenizer_none": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "none"
+        },
         "nori_tokenizer_mixed": {
           "type": "nori_tokenizer",
           "decompound_mode": "mixed"
@@ -10,13 +22,7 @@
       "filter": {
         "nori_pos_filter": {
           "type": "nori_part_of_speech",
-          "stoptags": [
-            "E",
-            "IC",
-            "J",
-            "MAG",
-            "MAJ"
-          ]
+          "stoptags": ["J", "E" , "VA", "XSA", "XR", "VX", "IC", "SN", "SP", "NR", "J", "E"]
         },
         "nori_readingform": {
           "type": "nori_readingform"
@@ -26,13 +32,27 @@
         }
       },
       "analyzer": {
-        "korean_mixed": {
+        "ngram_analyzer": {
+          "tokenizer": "ngram_tokenizer"
+        },
+        "nori_mixed_stop": {
           "type": "custom",
           "tokenizer": "nori_tokenizer_mixed",
           "filter": [
             "nori_readingform",
             "nori_pos_filter"
           ]
+        },
+        "nori_mixed": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_mixed",
+          "filter": [
+            "nori_readingform"
+          ]
+        },
+        "standard": {
+            "type": "custom",
+            "tokenizer": "standard"
         }
       }
     }
@@ -41,11 +61,47 @@
     "properties": {
       "title": {
         "type": "text",
-        "analyzer": "korean_mixed"
+        "fields": {
+          "standard": {
+            "type": "text",
+            "analyzer": "standard"
+          },
+          "nori_mixed": {
+            "type": "text",
+            "analyzer": "nori_mixed"
+          },
+          "nori_mixed_stop": {
+            "type": "text",
+            "analyzer": "nori_mixed_stop",
+            "fielddata": true
+          },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        }
       },
       "content": {
         "type": "text",
-        "analyzer": "korean_mixed"
+        "fields": {
+          "standard": {
+            "type": "text",
+            "analyzer": "standard"
+          },
+          "nori_mixed": {
+            "type": "text",
+            "analyzer": "nori_mixed"
+          },
+          "nori_mixed_stop": {
+            "type": "text",
+            "analyzer": "nori_mixed_stop",
+            "fielddata": true
+          },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        }
       },
       "provider": {
         "type": "nested",
@@ -66,7 +122,16 @@
       },
       "byline": {
         "type": "text",
-        "analyzer": "korean_mixed"
+        "fields": {
+          "standard": {
+            "type": "text",
+            "analyzer": "standard"
+          },
+          "nori_mixed": {
+            "type": "text",
+            "analyzer": "nori_mixed"
+          }
+        }
       },
       "category": {
         "type": "nested",
