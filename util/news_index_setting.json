@@ -1,18 +1,18 @@
 {
   "settings": {
     "index": {
-      "max_ngram_diff": 4
+      "max_ngram_diff": 2
     },
     "analysis": {
       "tokenizer": {
         "ngram_tokenizer": {
           "type": "ngram",
-          "min_gram": "2",
-          "max_gram": "6"
-        },
-        "nori_tokenizer_none": {
-          "type": "nori_tokenizer",
-          "decompound_mode": "none"
+          "min_gram": 1,
+          "max_gram": 3,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
         },
         "nori_tokenizer_mixed": {
           "type": "nori_tokenizer",
@@ -35,24 +35,13 @@
         "ngram_analyzer": {
           "tokenizer": "ngram_tokenizer"
         },
-        "nori_mixed_stop": {
+        "nori_analyzer": {
           "type": "custom",
           "tokenizer": "nori_tokenizer_mixed",
           "filter": [
             "nori_readingform",
             "nori_pos_filter"
           ]
-        },
-        "nori_mixed": {
-          "type": "custom",
-          "tokenizer": "nori_tokenizer_mixed",
-          "filter": [
-            "nori_readingform"
-          ]
-        },
-        "standard": {
-            "type": "custom",
-            "tokenizer": "standard"
         }
       }
     }
@@ -62,18 +51,9 @@
       "title": {
         "type": "text",
         "fields": {
-          "standard": {
+          "nori": {
             "type": "text",
-            "analyzer": "standard"
-          },
-          "nori_mixed": {
-            "type": "text",
-            "analyzer": "nori_mixed"
-          },
-          "nori_mixed_stop": {
-            "type": "text",
-            "analyzer": "nori_mixed_stop",
-            "fielddata": true
+            "analyzer": "nori_analyzer"
           },
           "ngram": {
             "type": "text",
@@ -84,18 +64,9 @@
       "content": {
         "type": "text",
         "fields": {
-          "standard": {
+          "nori": {
             "type": "text",
-            "analyzer": "standard"
-          },
-          "nori_mixed": {
-            "type": "text",
-            "analyzer": "nori_mixed"
-          },
-          "nori_mixed_stop": {
-            "type": "text",
-            "analyzer": "nori_mixed_stop",
-            "fielddata": true
+            "analyzer": "nori_analyzer"
           },
           "ngram": {
             "type": "text",
@@ -104,46 +75,114 @@
         }
       },
       "provider": {
-        "type": "nested",
         "properties": {
           "name": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           },
           "section": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           },
           "local": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           },
           "abc": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           }
         }
       },
       "byline": {
         "type": "text",
         "fields": {
-          "standard": {
+          "nori": {
             "type": "text",
-            "analyzer": "standard"
+            "analyzer": "nori_analyzer"
           },
-          "nori_mixed": {
+          "ngram": {
             "type": "text",
-            "analyzer": "nori_mixed"
+            "analyzer": "ngram_analyzer"
           }
         }
       },
       "category": {
-        "type": "nested",
         "properties": {
           "first": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           },
           "second": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           },
           "third": {
-            "type": "keyword"
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
           }
         }
       },
