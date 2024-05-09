@@ -7,7 +7,7 @@ from common.enums.news_enum import SortBy, DateRange
 
 
 def get_news_params(
-        keyword: str,
+        query: str,
         sort_by: SortBy,
         date_range: DateRange,
         start_date: Optional[str] = Query(None, description="YYYY-MM-DD"),
@@ -24,7 +24,7 @@ def get_news_params(
         pit_id: Optional[str] = Query(None)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
-        keyword=keyword,
+        query=query,
         sort_by=sort_by,
         date_range=date_range,
         start_date=start_date,

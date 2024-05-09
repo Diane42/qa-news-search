@@ -22,7 +22,7 @@ class NewsDTO(BaseModel):
 
 
 class NewsSearchRequest(BaseModel):
-    keyword: str
+    query: str
     sort_by: SortBy
     date_range: DateRange
     start_date: Optional[str] = None
