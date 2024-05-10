@@ -12,8 +12,8 @@ from common.enums.provider_enum import ProviderGroupType
 class NewsDTO(BaseModel):
     score: float
     id: int
-    title: str
-    content: str
+    title: list[str]
+    content: list[str]
     provider: str
     byline: Optional[str]
     category: list
@@ -22,7 +22,7 @@ class NewsDTO(BaseModel):
 
 
 class NewsSearchRequest(BaseModel):
-    query: str
+    q: str
     sort_by: SortBy
     date_range: DateRange
     start_date: Optional[str] = None
@@ -77,27 +77,28 @@ class InsertResponse(BasicResponse):
 
 
 class NewsSearchResponse(BasicResponse):
-    return_cnt: int
+    pit_id: str
+    total_count: int
+    return_count: int
     news_list: list[NewsDTO]
 
     @staticmethod
-    def to_response(search_results: list):
-        return NewsSearchResponse(return_cnt=len(search_results),
-                                  news_list=(NewsDTO
-                                             (score=result["_score"],
-                                              id=result["_source"]["id"],
-                                              title=result["highlight"]['title'][0] if 'title' in result[
-                                                  "highlight"] else result["_source"]["title"],
-                                              content=result["highlight"]['content'][0] if 'content' in result[
-                                                  "highlight"] else result["_source"]["content"],
-                                              provider=result["_source"]["provider"]["name"],
-                                              byline=result["_source"]["byline"] if result["_source"][
-                                                  "byline"] else None,
-                                              category=result["_source"]["category"],
-                                              dateline=result["_source"]["dateline"],
-                                              search_after=result["sort"],
-                                              ) for result in search_results
-                                             )
+    def to_response(response: dict):
+        result = [doc for doc in response['hits']['hits']]
+        return NewsSearchResponse(pit_id=response.get("pit_id"),
+                                  total_count=response["hits"]["total"]["value"],
+                                  return_count=len(result),
+                                  news_list=[NewsDTO(
+                                      score=doc["_score"],
+                                      id=doc["_source"]["id"],
+                                      title=doc["highlight"]['title.ngram'] if 'title.ngram' in doc["highlight"] else doc["_source"]["title"],
+                                      content=doc["highlight"]['content.ngram'] if 'content.ngram' in doc["highlight"] else doc["_source"]["content"],
+                                      provider=doc["_source"]["provider"]["name"],
+                                      byline=doc["_source"].get("byline"),
+                                      category=doc["_source"]["category"],
+                                      dateline=doc["_source"]["dateline"],
+                                      search_after=doc["sort"],
+                                  ) for doc in result]
                                   )
 
 
