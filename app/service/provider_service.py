@@ -24,7 +24,7 @@ class ProviderService:
                 index_data = [row for row in reader]
             success_list, fail_list = self.provider_repository.streaming_bulk_insert(settings.PROVIDER_INDEX_NAME,
                                                                                      index_data)
-        return InsertResponse(success_cnt=len(success_list), fail_cnt=len(fail_list))
+        return InsertResponse(success_count=len(success_list), fail_count=len(fail_list))
 
     def get_provider_list(self, provider_type: ProviderGroupType):
         field_keyword = provider_type.__str__().lower() + ".keyword"

@@ -1,5 +1,4 @@
 import json
-from datetime import datetime
 
 from app.repository.news_repository import NewsRepository
 from app.schema.dto import NewsSearchRequest, InsertResponse, NewsSearchResponse
@@ -21,7 +20,7 @@ class NewsService:
             with open(settings.NEWS_INDEX_DATA, 'r', encoding='utf-8') as index_data_file:
                 index_data = json.load(index_data_file)
             success_list, fail_list = self.news_repository.streaming_bulk_insert(settings.NEWS_INDEX_NAME, index_data)
-        return InsertResponse(success_cnt=len(success_list), fail_cnt=len(fail_list))
+        return InsertResponse(success_count=len(success_list), fail_count=len(fail_list))
 
     def search_news(self, request: NewsSearchRequest):
         # TODO : now로 변경 (해당 일자는 .csv 뉴스 데이터의 가장 마지막 일자)

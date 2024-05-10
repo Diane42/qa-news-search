@@ -24,10 +24,10 @@ class CategoryService:
                 index_data = [row for row in reader]
             success_list, fail_list = self.category_repository.streaming_bulk_insert(settings.CATEGORY_INDEX_NAME,
                                                                                      index_data)
-        return InsertResponse(success_cnt=len(success_list), fail_cnt=len(fail_list))
+        return InsertResponse(success_count=len(success_list), fail_count=len(fail_list))
 
     def get_category_list(self, category_type: CategoryType):
-        if category_type == CategoryType.FIRST:
+        if category_type == CategoryType.SECOND:
             body = {
                 "query": {
                     "bool": {
@@ -58,7 +58,7 @@ class CategoryService:
 
                 }
             }
-        elif category_type == CategoryType.SECOND:
+        elif category_type == CategoryType.THIRD:
             body = {
                 "query": {
                     "bool": {

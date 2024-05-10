@@ -14,7 +14,7 @@ class NewsDTO(BaseModel):
     id: int
     title: list[str]
     content: list[str]
-    provider: str
+    provider: dict
     byline: Optional[str]
     category: list
     dateline: str
@@ -43,14 +43,15 @@ class NewsSearchRequest(BaseModel):
         if self.search_after:
             search_after = []
             for val in self.search_after[0].split(","):
+                val = val.strip()
                 if val:
-                    val = val.strip()
                     if '.' in val:
                         val = float(val)
                     elif "\"" in val or "'" in val:
                         val = val.replace("\"", "").replace("'", "")
                     else:
                         val = int(val)
+                    print(val)
                     search_after.append(val)
             self.search_after = search_after
         # else:
@@ -72,8 +73,8 @@ class NewsSearchRequest(BaseModel):
 
 
 class InsertResponse(BasicResponse):
-    success_cnt: int
-    fail_cnt: int
+    success_count: int
+    fail_count: int
 
 
 class NewsSearchResponse(BasicResponse):
@@ -93,7 +94,7 @@ class NewsSearchResponse(BasicResponse):
                                       id=doc["_source"]["id"],
                                       title=doc["highlight"]['title.ngram'] if 'title.ngram' in doc["highlight"] else doc["_source"]["title"],
                                       content=doc["highlight"]['content.ngram'] if 'content.ngram' in doc["highlight"] else doc["_source"]["content"],
-                                      provider=doc["_source"]["provider"]["name"],
+                                      provider=doc["_source"]["provider"],
                                       byline=doc["_source"].get("byline"),
                                       category=doc["_source"]["category"],
                                       dateline=doc["_source"]["dateline"],
@@ -104,22 +105,22 @@ class NewsSearchResponse(BasicResponse):
 
 class ProviderDTO(BaseModel):
     provider_type: str
-    provider_cnt: int
+    provider_count: int
     provider_list: list[str]
 
 
 class ProviderListResponse(BasicResponse):
     group_type: ProviderGroupType
-    group_cnt: int
+    group_count: int
     group_list: list[ProviderDTO]
 
     @staticmethod
     def to_response(provider_type: ProviderGroupType, get_results: list):
         return ProviderListResponse(group_type=provider_type,
-                                    group_cnt=len(get_results),
+                                    group_count=len(get_results),
                                     group_list=(ProviderDTO(
                                         provider_type=result["key"],
-                                        provider_cnt=len(result["provider_names"]["buckets"]),
+                                        provider_count=len(result["provider_names"]["buckets"]),
                                         provider_list=[provider["key"] for provider in
                                                        result["provider_names"]["buckets"]]
                                     ) for result in get_results
@@ -137,7 +138,7 @@ class MainCategoryResponse(BasicResponse):
 
     @staticmethod
     def to_main_category(get_results: list, category_type: CategoryType):
-        if category_type == CategoryType.ALL:
+        if category_type == CategoryType.FIRST:
             return MainCategoryResponse(
                 category_list=[CategoryDto(
                     main=None,
