@@ -1,6 +1,6 @@
 import json
 from typing import Optional
-from elasticsearch import Elasticsearch, AsyncElasticsearch
+from elasticsearch import Elasticsearch, AsyncElasticsearch, NotFoundError
 from elasticsearch.helpers import streaming_bulk
 
 from common.exception.exception import ElasticsearchException
@@ -75,12 +75,27 @@ class ElasticSearchClient:
 
         return success_list, fail_list
 
+    def create_pit(self, index_name: str):
+        return self.client.open_point_in_time(index=index_name, keep_alive="1m")
+
+    def delete_pit(self, pit_id: str):
+        return self.client.close_point_in_time(id=pit_id)
+
     def search(self, index_name: str, body: dict, size: int):
         try:
             if 'pit' in body:
-                return self.client.search(body=body, size=size)
+                body['size'] = size
+                try:
+                    return self.client.search(body=body)
+                except NotFoundError as e:
+                    if "No search context found for id" in str(e):
+                        body['pit'] = {"id": self.create_pit(index_name)["id"], "keep_alive": "1m"}
+                        return self.client.search(body=body)
+                    else:
+                        raise ElasticsearchException(code=500, detail=str(e))
             else:
-                return self.client.search(index=index_name, body=body, size=size)
+                body['size'] = size
+                return self.client.search(index=index_name, body=body)
         except Exception as e:
             raise ElasticsearchException(code=500, detail=str(e))
 

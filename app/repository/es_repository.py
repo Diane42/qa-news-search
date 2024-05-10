@@ -22,6 +22,12 @@ class ESRepository:
     def streaming_bulk_insert(self, index_name: str, data: list):
         return self.es_client.streaming_bulk_insert(index_name, data)
 
+    def create_pit(self, index_name: str):
+        return self.es_client.create_pit(index_name)
+
+    def delete_pit(self, pit_id: str):
+        return self.es_client.delete_pit(pit_id)
+
     def search(self, index_name: str, body: dict, size: int):
         return self.es_client.search(index_name, body, size)
 

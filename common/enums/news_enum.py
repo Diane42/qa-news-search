@@ -48,7 +48,7 @@ class DateRange(StrEnum):
         }
         if self in periods:
             delta = periods[self]
-            return {"gte": (now - delta).isoformat(), "lte": now.isoformat()}
+            return {"gte": (now - delta).isoformat(), "lte": now.isoformat(), "origin": "now"}
         elif self == DateRange.CUSTOM:
             if start_date and end_date:
                 if isinstance(start_date, str):
@@ -57,5 +57,5 @@ class DateRange(StrEnum):
                     end_date = datetime.strptime(end_date, "%Y-%m-%d")
                 start_date_with_time = datetime.combine(start_date, time(0, 0, 0))
                 end_date_with_time = datetime.combine(end_date, time(23, 59, 59))
-                return {"gte": start_date_with_time.isoformat(), "lte": end_date_with_time.isoformat()}
+                return {"gte": start_date_with_time.isoformat(), "lte": end_date_with_time.isoformat(), "origin": end_date.isoformat()}
         return None
