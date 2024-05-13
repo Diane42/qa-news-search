@@ -12,5 +12,5 @@ RUN python3.9 -m pip install -r requirements.txt
 
 COPY . ${HOME}
 WORKDIR ${HOME}
-EXPOSE 8000
+EXPOSE 14283
 CMD ["python", "asgi.py"]
