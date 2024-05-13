@@ -12,8 +12,8 @@ services:
     ports:
       - "14283:8000"
     volumes:
-      - ./:/api/src
-      - ./log:/log/api
+      - /mnt/disks/data/qa42/esojt/api/diane/src:/api/src
+      - /mnt/disks/data/qa42/esojt/api/diane/log:/log/api
     networks:
       - es-ojt
 
