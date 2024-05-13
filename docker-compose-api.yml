@@ -1,0 +1,22 @@
+version: '3.8'
+services:
+  api:
+    container_name: diane-api
+    build:
+      dockerfile: Dockerfile
+    environment:
+      TZ: Asia/Seoul
+    env_file:
+      - .env
+    ports:
+      - "14283:8000"
+    volumes:
+      - ./:/api/src
+      - ./log:/log/api
+    networks:
+      - es-ojt
+
+networks:
+  es-ojt:
+    driver: bridge
+
