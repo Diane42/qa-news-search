@@ -3,6 +3,7 @@ services:
   api:
     container_name: diane-api
     build:
+      context: .
       dockerfile: Dockerfile
     environment:
       TZ: Asia/Seoul
