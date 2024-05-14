@@ -1,12 +1,11 @@
 FROM python:3.9.5
 LABEL authors="42Maru"
 
-ENV HOME /news/src
+ENV HOME /es-ojt-diane
 RUN mkdir -p ${HOME}
 WORKDIR ${HOME}
 
-RUN apt-get update && apt-get -y install vim
-
+RUN pip install --upgrade pip
 ADD requirements.txt ${HOME}
 RUN python3.9 -m pip install -r requirements.txt
 

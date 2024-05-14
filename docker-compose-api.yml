@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   api:
-    container_name: es-ojt-diane-api
+    container_name: es-ojt-api-diane
     build:
       context: .
       dockerfile: Dockerfile
@@ -10,9 +10,9 @@ services:
     env_file:
       - .env
     ports:
-      - "14283:14283"
+      - "14283:8000"
     volumes:
-      - /mnt/disks/data/qa42/esojt/api/diane/src:/api/src
+      - /mnt/disks/data/qa42/esojt/api/diane/src:/es-ojt-diane/src
       - /mnt/disks/data/qa42/esojt/api/diane/log:/log/api
     networks:
       - es-ojt
