@@ -14,10 +14,5 @@ services:
     volumes:
       - /mnt/disks/data/qa42/esojt/api/diane/src:/es-ojt-diane/src
       - /mnt/disks/data/qa42/esojt/api/diane/log:/log/api
-    networks:
-      - es-ojt
-
-networks:
-  es-ojt:
-    driver: bridge
-
+    network_mode: "host"
+    restart: always
