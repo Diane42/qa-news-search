@@ -9,8 +9,6 @@ services:
       TZ: Asia/Seoul
     env_file:
       - .env
-    ports:
-      - "14283:8000"
     volumes:
       - /mnt/disks/data/qa42/esojt/api/diane/src:/es-ojt-diane/src
       - /mnt/disks/data/qa42/esojt/api/diane/log:/log/api
