@@ -7,7 +7,7 @@ from core.exception_handler import elasticsearch_exception_handler, pydantic_exc
 
 
 def create_app():
-    app = FastAPI()
+    app = FastAPI(title="News Search - Diane")
     container = AppContainer()
     container.wire(packages=["app"])
     app.container = container

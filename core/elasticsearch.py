@@ -123,6 +123,12 @@ class ElasticSearchClient:
         except Exception as e:
             raise ElasticsearchException(code=500, detail=str(e))
 
+    def search_suggest(self, index_name: str, body: dict):
+        return self.client.search(index=index_name, body=body)
+
+    def analyze(self, index_name: str, body: dict):
+        return self.client.indices.analyze(index=index_name, body=body)
+
 
 class AsyncElasticSearchClient:
     def __init__(self):

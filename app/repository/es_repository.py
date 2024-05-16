@@ -32,5 +32,10 @@ class ESRepository:
         return self.es_client.search(index_name, body, size)
 
     def scroll(self, scroll_id: str, scroll: str):
-        return self.es_client.scroll(scroll_id=scroll_id, scroll=scroll)
+        return self.es_client.scroll(scroll_id, scroll)
 
+    def search_suggest(self, index_name: str, body: dict):
+        return self.es_client.search_suggest(index_name, body)
+
+    def analyze(self, index_name: str, body: dict):
+        return self.es_client.analyze(index_name, body)

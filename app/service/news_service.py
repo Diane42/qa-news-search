@@ -1,5 +1,7 @@
 import json
 
+import unicodedata
+
 from app.repository.news_repository import NewsRepository
 from app.schema.dto import NewsSearchRequest, InsertResponse, NewsSearchResponse
 from common.enums.news_enum import SortBy
@@ -23,6 +25,36 @@ class NewsService:
         return InsertResponse(success_count=len(success_list), fail_count=len(fail_list))
 
     def search_news(self, request: NewsSearchRequest):
+        # 제안
+        request_q = request.q
+        suggest_q = ""
+        if request.suggest:
+            suggest_body = {
+                "suggest": {
+                    "q-suggestion": {
+                        "text": request.q,
+                        "term": {
+                            "field": "title.spell_nori",
+                            "string_distance": "damerau_levenshtein"
+                        }
+                    }
+                }
+            }
+            suggest = self.news_repository.search_suggest(settings.NEWS_INDEX_NAME, suggest_body)
+            request_q = request.q
+            suggest_q = ""
+            for s in suggest["suggest"]["q-suggestion"]:
+                if s["options"]:
+                    suggest_q += (s["options"][0]["text"] + " ")
+                else:
+                    suggest_q += (s["text"] + " ")
+            suggest_q = suggest_q.strip()
+            request.q = unicodedata.normalize('NFC', suggest_q)
+        response = self.search_query(request)
+        return NewsSearchResponse.to_response(response=response, request_q=request_q,
+                                              suggest_q=suggest_q if suggest_q else None)
+
+    def search_query(self, request: NewsSearchRequest):
         # TODO : now로 변경 (해당 일자는 .csv 뉴스 데이터의 가장 마지막 일자)
         origin_date = "2021-10-01"
 
@@ -149,7 +181,8 @@ class NewsService:
                                     "boost": 5
                                 }
                             }
-                        }],
+                        }
+                    ],
                     "must": must_list,
                     "filter": filter_list
                 }
@@ -165,7 +198,5 @@ class NewsService:
         else:
             created_pit = self.news_repository.create_pit(index_name=settings.NEWS_INDEX_NAME)
             body["pit"] = {"id": created_pit["id"], "keep_alive": "1m"}
-
         response = self.news_repository.search(index_name=settings.NEWS_INDEX_NAME, body=body, size=10)
-
-        return NewsSearchResponse.to_response(response)
+        return response

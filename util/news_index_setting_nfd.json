@@ -1,0 +1,216 @@
+{
+  "settings": {
+    "index": {
+      "max_ngram_diff": 2
+    },
+    "analysis": {
+      "char_filter": {
+          "nfc_normalizer": {
+            "mode": "decompose",
+            "name": "nfc",
+            "type": "icu_normalizer"
+          }
+      },
+      "tokenizer": {
+        "ngram_tokenizer": {
+          "type": "ngram",
+          "min_gram": 2,
+          "max_gram": 3,
+          "token_chars": [
+            "letter",
+            "digit"
+          ]
+        },
+        "nori_tokenizer_mixed": {
+          "type": "nori_tokenizer",
+          "decompound_mode": "mixed"
+        }
+      },
+      "filter": {
+        "nori_pos_filter": {
+          "type": "nori_part_of_speech",
+          "stoptags": ["J", "E" , "VA", "XSA", "XR", "VX", "IC", "SN", "SP", "NR"]
+        },
+        "nori_readingform": {
+          "type": "nori_readingform"
+        },
+        "lowercase": {
+          "type": "lowercase"
+        }
+      },
+      "analyzer": {
+        "ngram_analyzer": {
+          "tokenizer": "ngram_tokenizer"
+        },
+        "nori_analyzer": {
+          "type": "custom",
+          "tokenizer": "nori_tokenizer_mixed",
+          "filter": [
+            "nori_readingform",
+            "nori_pos_filter"
+          ]
+        },
+        "nfc_analyzer_nori": {
+            "filter": [
+              "lowercase"
+            ],
+            "char_filter": [
+              "nfc_normalizer"
+            ],
+            "tokenizer": "nori_tokenizer_mixed"
+          }
+      }
+    }
+  },
+  "mappings": {
+    "properties": {
+      "title": {
+        "type": "text",
+        "fields": {
+          "nori": {
+            "type": "text",
+            "analyzer": "nori_analyzer"
+          },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          },
+          "spell_nori": {
+            "type": "text",
+            "analyzer": "nfc_analyzer_nori"
+          }
+        }
+      },
+      "content": {
+        "type": "text",
+        "fields": {
+          "nori": {
+            "type": "text",
+            "analyzer": "nori_analyzer"
+          },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        }
+      },
+      "provider": {
+        "properties": {
+          "name": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          },
+          "section": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          },
+          "local": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          },
+          "abc": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          }
+        }
+      },
+      "byline": {
+        "type": "text",
+        "fields": {
+          "nori": {
+            "type": "text",
+            "analyzer": "nori_analyzer"
+          },
+          "ngram": {
+            "type": "text",
+            "analyzer": "ngram_analyzer"
+          }
+        }
+      },
+      "category": {
+        "properties": {
+          "first": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          },
+          "second": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          },
+          "third": {
+            "type": "text",
+            "fields": {
+              "nori": {
+                "type": "text",
+                "analyzer": "nori_analyzer"
+              },
+              "ngram": {
+                "type": "text",
+                "analyzer": "ngram_analyzer"
+              }
+            }
+          }
+        }
+      },
+      "dateline": {
+        "type": "date",
+        "format": "yyyy-MM-dd HH:mm:ss||strict_date_optional_time||epoch_millis"
+      }
+    }
+  }
+}
+

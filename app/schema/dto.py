@@ -37,6 +37,7 @@ class NewsSearchRequest(BaseModel):
     category_3: Optional[str] = None
     search_after: Optional[list] = None
     pit_id: Optional[str] = None
+    suggest: bool = True
 
     @model_validator(mode="after")
     def validate(self):
@@ -81,14 +82,18 @@ class NewsSearchResponse(BasicResponse):
     pit_id: str
     total_count: int
     return_count: int
+    request_q: str
+    suggest_q: Optional[str]
     news_list: list[NewsDTO]
 
     @staticmethod
-    def to_response(response: dict):
+    def to_response(response: dict, request_q: str, suggest_q: Optional[str]=None):
         result = [doc for doc in response['hits']['hits']]
         return NewsSearchResponse(pit_id=response.get("pit_id"),
                                   total_count=response["hits"]["total"]["value"],
                                   return_count=len(result),
+                                  request_q=request_q,
+                                  suggest_q=suggest_q,
                                   news_list=[NewsDTO(
                                       score=doc["_score"],
                                       id=doc["_source"]["id"],

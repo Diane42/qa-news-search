@@ -21,7 +21,8 @@ def get_news_params(
         category_2: Optional[str] = Query(None),
         category_3: Optional[str] = Query(None),
         search_after: Optional[list] = Query(None),
-        pit_id: Optional[str] = Query(None)
+        pit_id: Optional[str] = Query(None),
+        suggest: bool = Query(True)
 ) -> NewsSearchRequest:
     return NewsSearchRequest(
         q=q,
@@ -38,6 +39,7 @@ def get_news_params(
         category_2=category_2,
         category_3=category_3,
         search_after=search_after,
-        pit_id=pit_id
+        pit_id=pit_id,
+        suggest=suggest
     )
 
